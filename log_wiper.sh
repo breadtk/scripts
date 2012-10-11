@@ -38,7 +38,6 @@ shred -fvzu -n 3 /var/log/mail.*
 shred -fvzu -n 3 /var/log/syslog*
 shred -fvzu -n 3 /var/log/messages*
 
-
 # stop logging ssh
 cp /etc/ssh/aa
 sed -i 's/LogLevel.*/LogLevel QUIET/' /etc/ssh/sshd_config
