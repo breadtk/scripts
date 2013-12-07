@@ -18,7 +18,7 @@ begin
   Timeout::timeout(3){
     Resolv::DNS.open({:nameserver=>[dns_server]}) do |r|
       r.getaddress("surkatty.org")
-      puts "#{dns_server}: open resolve"
+      puts "#{dns_server}: open resolver"
     end
   }
 rescue Resolv::ResolvError
